@@ -1,49 +1,14 @@
 const { Router } = require('express');
 const postRouter = Router();
-const { Post } = require('../models/Post');
+const { getAllPosts, addPost, updatePost, deletePost } = require('../controllers/post');
 
-postRouter.get("/posts", async (req, res) => {
-    try {
-        const posts = await Post.find({});
-        let postContent = [];
-        await posts.map((post) => {
-            postContent.push(post);
-        });
-        res.status(200).send(postContent);
-    } catch (error) {
-        res.status(500).send(error)
-    }
-});
+postRouter.get("/posts", getAllPosts);
 
-postRouter.post("/posts/:user_id", async (req, res) => {
-    try {
-        const post = new Post(req.body);
-        post.author = req.params.user_id;
-        const savedPost = await post.save();
-        res.status(201).send(savedPost);
-    } catch (error) {
-        res.status(500).send({ message: "Could not connect" });
-    }
-    
-});
+postRouter.post("/posts/:user_id", addPost);
 
-postRouter.patch("/posts/:id", async (req, res) => {
-    try {
-        const post = await Post.findByIdAndUpdate(req.params.id, req.body, {new: true})
-        res.status(200).send(post);
-    } catch (error) {
-        res.status(404).send({ message: "post not found" });
-    };
-});
-
-postRouter.delete("/posts/:id", async (req, res) => {
-    try {
-        const post = await Post.findByIdAndDelete(req.params.id)
-        res.status(200).send(post)
-    } catch (error) {
-        res.status(404).send({ message: "post not found" });
-    };
-});
+postRouter.route("/posts/:id")
+.patch(updatePost)
+.delete(deletePost);
 
 module.exports = {
     postRouter,
