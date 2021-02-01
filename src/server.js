@@ -3,6 +3,7 @@ const app = express();
 require('./db/connection');
 const mongoose = require('mongoose');
 const { User } = require('./models/User');
+const { Post } = require('./models/Post')
 const port = process.env.PORT || 5000
 
 app.use(express.json());
@@ -10,6 +11,48 @@ app.use(express.json());
 app.get("/health", (req, res) => {
     res.status(200).send({ message: "API is working" });
 })
+
+app.get("/posts", async (req, res) => {
+    try {
+        const posts = await Post.find({});
+        let postContent = [];
+        await posts.map((post) => {
+            postContent.push(post);
+        });
+        res.status(200).send(postContent);
+    } catch (error) {
+        res.status(500).send(error)
+    }
+});
+
+app.post("/posts", async (req, res) => {
+    try {
+        const post = new Post(req.body);
+        const savedpost = await post.save();
+        res.status(201).send(savedpost)
+    } catch (error) {
+        res.status(500).send({ message: "Could not connect" });
+    }
+    
+});
+
+app.patch("/posts/:id", async (req, res) => {
+    try {
+        const post = await Post.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        res.status(200).send(post);
+    } catch (error) {
+        res.status(404).send({ message: "post not found" });
+    };
+});
+
+app.delete("/posts/:id", async (req, res) => {
+    try {
+        const post = await Post.findByIdAndDelete(req.params.id)
+        res.status(200).send(post)
+    } catch (error) {
+        res.status(404).send({ message: "post not found" });
+    };
+});
 
 app.get("/users", async (req, res) => {
     try {
@@ -38,11 +81,6 @@ app.post("/users", async (req, res) => {
 app.patch("/users/:id", async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, {new: true})
-        // const user = await User.find({ name: req.params.id });
-        // console.log(user);
-        // user.name = req.body.name;
-        // console.log(user.name);
-        // const savedUser = await user.save();
         res.status(200).send(user);
     } catch (error) {
         res.status(404).send({ message: "User not found" });
