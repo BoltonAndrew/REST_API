@@ -1,1 +1,4 @@
-# REST_API
+# Demo REST API
+
+## Functionality
+
