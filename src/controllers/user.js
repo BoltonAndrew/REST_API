@@ -3,11 +3,17 @@ const { User } = require('../models/User');
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find({});
-        let userNames = [];
-        await users.map((user) => {
-            userNames.push(user.name);
-        });
-        res.status(200).send(userNames);
+        
+        res.status(200).send(users);
+    } catch (error) {
+        res.status(500).send(error)
+    };
+};
+
+exports.getOneUser = async (req, res) => {
+    try {
+        const user = await User.find({name: req.params.id})
+        res.status(200).send(user)
     } catch (error) {
         res.status(500).send(error)
     };
