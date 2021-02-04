@@ -13,6 +13,15 @@ exports.getAllPosts = async (req, res) => {
     };
 };
 
+exports.getPosts = async (req, res) => {
+    try {
+        const posts = await Post.find({author: req.params.user_id})
+        res.status(200).send(posts);
+    } catch (error) {
+        res.status(500).send(error);
+    };
+};
+
 exports.addPost = async (req, res) => {
     try {
         const post = new Post(req.body);

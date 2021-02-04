@@ -46,3 +46,12 @@ exports.deleteUser = async (req, res) => {
         res.status(404).send({ message: "User not found" });
     };
 };
+
+exports.login = async (req, res) => {
+    try {
+        const user = await User.findByCredentials(req.body.email, req.body.password);
+        res.status(200).send(user);
+    } catch (error) {
+        res.status(400).send({message: "Unable to login"});
+    }
+}
