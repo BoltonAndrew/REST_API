@@ -1,14 +1,18 @@
 const { User } = require('../models/User');
 
-exports.getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find({});
+// exports.getAllUsers = async (req, res) => {
+//     try {
+//         const users = await User.find({});
         
-        res.status(200).send(users);
-    } catch (error) {
-        res.status(500).send(error)
-    };
-};
+//         res.status(200).send(users);
+//     } catch (error) {
+//         res.status(500).send(error)
+//     };
+// };
+
+exports.getMyProfile = async (req, res) => {
+    res.status(200).send(req.user);
+}
 
 exports.getOneUser = async (req, res) => {
     try {
@@ -22,7 +26,7 @@ exports.getOneUser = async (req, res) => {
 exports.addUser = async (req, res) => {
     try {
         const user = new User(req.body);
-        const token = user.generateAuthToken();
+        const token = await user.generateAuthToken();
         const savedUser = await user.save();
         res.status(201).send({ savedUser, token })
     } catch (error) {
@@ -55,9 +59,21 @@ exports.deleteUser = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password);
-        const token = user.generateAuthToken();
+        const token = await user.generateAuthToken();
         res.status(200).send({ user, token });
     } catch (error) {
         res.status(400).send({message: "Unable to login"});
+    };
+};
+
+exports.logout = async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((tokenObj) => {
+            return tokenObj.token !== req.token
+        });
+        await req.user.save();
+        res.status(200).send({ message: "User successfully logged out" })
+    } catch (error) {
+        res.status(500).send({ message: "Unable to log out" })
     }
 }
